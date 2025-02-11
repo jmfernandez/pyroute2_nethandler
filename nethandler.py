@@ -70,16 +70,17 @@ def get_maximum_file_descriptors() -> "int":
 
     return result
 
+# Create Instance of IPDB
+q = queue.Queue()
+
 def cldhandler(signum, frame):
 	while True:
 		try:
 			pid, exit_status = os.wait()
-			print(f"{pid} {os.waitstatus_to_exitcode(exit_status)}")
+			# The less processing here, the better
+			q.put((datetime.datetime.now(), None, exit_status, pid))
 		except ChildProcessError as cpe:
 			break
-
-# Create Instance of IPDB
-q = queue.Queue()
 
 def cb(ipdb, msg, action):
 	# These are the only actions being attended
@@ -116,6 +117,10 @@ with pyroute2.IPDB() as ipdb:
 
 	while(True):
 		stamp, action, msg, interface = q.get()
+		
+		if action is None:
+			print(f"{interface} {os.waitstatus_to_exitcode(msg)}")
+			continue
 		
 		base_config_dir = xdg_config_home() / CONFIG_SUBDIR / action
 		
