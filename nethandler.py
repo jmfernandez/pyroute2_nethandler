@@ -33,6 +33,7 @@ IFACE_IGNORABLE = {
 
 IFACE_IGNORABLE_RE = (
 	re.compile(r"^veth.*"),
+	re.compile(r"^br-.*"),
 )
 
 # ifa_flags
@@ -119,7 +120,7 @@ with pyroute2.IPDB() as ipdb:
 		stamp, action, msg, interface = q.get()
 		
 		if action is None:
-			print(f"{interface} {os.waitstatus_to_exitcode(msg)}")
+			print(f"{stamp.isoformat()} child {interface} {os.waitstatus_to_exitcode(msg)}")
 			continue
 		
 		base_config_dir = xdg_config_home() / CONFIG_SUBDIR / action
